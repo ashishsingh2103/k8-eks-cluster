@@ -1,0 +1,39 @@
+name: Terraform AWS EKS Provision
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repo
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Set up Terraform
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      # Configure AWS Credentials (using GitHub Secrets)
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Install dependencies (Terraform)
+      - name: Install Terraform dependencies
+        run: terraform init
+
+      # Apply Terraform changes (Provision Cluster)
+      - name: Apply Terraform
+        run: terraform apply -auto-approve
+
+      # Optionally output cluster details
+      - name: Show Outputs
+        run: terraform output
